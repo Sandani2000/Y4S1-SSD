@@ -4,6 +4,7 @@ const Course = require("../models/Course");
 const path = require("path");
 const multer = require("multer");
 const axios = require("axios");
+const sanitize = require("sanitize-html");
 
 // Multer configuration
 const storage = multer.diskStorage({
@@ -23,7 +24,7 @@ const storage = multer.diskStorage({
   },
 });
 
-const upload = multer({ storage: storage });
+const upload = multer({storage: storage});
 
 // Serve files stored in the respective folders
 router.use(
@@ -36,9 +37,9 @@ router.use("/preview", express.static(path.join(__dirname, "../Preview")));
 router.post(
   "/add",
   upload.fields([
-    { name: "lectureNotes" },
-    { name: "lectureVideos" },
-    { name: "preview" },
+    {name: "lectureNotes"},
+    {name: "lectureVideos"},
+    {name: "preview"},
   ]),
   async (req, res) => {
     try {
@@ -74,18 +75,15 @@ router.post(
       const totalLessons = lessons.length;
       courseData.totalLessons = totalLessons;
 
-      const sanitize = require('sanitize-html');
-
       const sanitizedCourseData = sanitize(courseData);
-      
+
       const course = new Course(sanitizedCourseData);
       await course.save();
-      
+
       res.status(201).send(course);
-      
     } catch (error) {
       console.error("Error uploading data:", error);
-      res.status(500).send({ error: "Error uploading data" });
+      res.status(500).send({error: "Error uploading data"});
     }
   }
 );
@@ -105,7 +103,7 @@ router.get("/get", async (req, res) => {
     res.status(200).send(courses);
   } catch (error) {
     console.error("Error fetching courses:", error);
-    res.status(500).send({ error: "Error fetching courses" });
+    res.status(500).send({error: "Error fetching courses"});
   }
 });
 
@@ -119,14 +117,14 @@ router.get("/get/:courseId", async (req, res) => {
 
     // Check if the course exists
     if (!course) {
-      return res.status(404).send({ error: "Course not found" });
+      return res.status(404).send({error: "Course not found"});
     }
 
     // If the course exists, send it as a response
     res.status(200).send(course);
   } catch (error) {
     // If there's an error, send an error response
-    res.status(500).send({ error: "Error fetching course" });
+    res.status(500).send({error: "Error fetching course"});
   }
 });
 
@@ -142,13 +140,13 @@ router.put("/update/:courseId", async (req, res) => {
 
     // Check if the course exists
     if (!course) {
-      return res.status(404).send({ error: "Course not found" });
+      return res.status(404).send({error: "Course not found"});
     }
 
     // If the course exists, send it as a response
-    res.status(200).send({ message: "Course updated successfully", course });
+    res.status(200).send({message: "Course updated successfully", course});
   } catch (error) {
-    res.status(500).send({ error: "Error updating course" });
+    res.status(500).send({error: "Error updating course"});
   }
 });
 
@@ -160,12 +158,12 @@ router.post("/approve/:courseId", async (req, res) => {
     // Find the course by its ID
     const course = await Course.findByIdAndUpdate(
       courseId,
-      { status: "approved" },
-      { new: true }
+      {status: "approved"},
+      {new: true}
     );
     // Check if the course exists
     if (!course) {
-      return res.status(404).send({ error: "Course not found" });
+      return res.status(404).send({error: "Course not found"});
     }
     // Make request to local notification microservice
     await axios.post("http://localhost:4005/api/v1/notification/add", {
@@ -175,9 +173,9 @@ router.post("/approve/:courseId", async (req, res) => {
     });
 
     // If the course exists, send it as a response
-    res.status(200).send({ message: "Course approved successfully", course });
+    res.status(200).send({message: "Course approved successfully", course});
   } catch (error) {
-    res.status(500).send({ error: "Error approving course" });
+    res.status(500).send({error: "Error approving course"});
   }
 });
 
@@ -189,13 +187,13 @@ router.post("/reject/:courseId", async (req, res) => {
     // Find the course by its ID and update its status to "rejected"
     const course = await Course.findByIdAndUpdate(
       courseId,
-      { status: "rejected" },
-      { new: true }
+      {status: "rejected"},
+      {new: true}
     );
 
     // Check if the course exists
     if (!course) {
-      return res.status(404).send({ error: "Course not found" });
+      return res.status(404).send({error: "Course not found"});
     }
 
     // Make request to local notification microservice
@@ -206,10 +204,10 @@ router.post("/reject/:courseId", async (req, res) => {
     });
 
     // If the course exists, send it as a response
-    res.status(200).send({ message: "Course rejected successfully", course });
+    res.status(200).send({message: "Course rejected successfully", course});
   } catch (error) {
     // If there's an error, send an error response
-    res.status(500).send({ error: "Error rejecting course" });
+    res.status(500).send({error: "Error rejecting course"});
   }
 });
 
@@ -223,46 +221,46 @@ router.delete("/delete/:courseId", async (req, res) => {
 
     // Check if the course was found and deleted
     if (!deletedCourse) {
-      return res.status(404).send({ error: "Course not found" });
+      return res.status(404).send({error: "Course not found"});
     }
 
     // If the course was deleted successfully, send a success message
     res
       .status(200)
-      .send({ message: "Course deleted successfully", deletedCourse });
+      .send({message: "Course deleted successfully", deletedCourse});
   } catch (error) {
     // If there's an error, send an error response
-    res.status(500).send({ error: "Error deleting course" });
+    res.status(500).send({error: "Error deleting course"});
   }
 });
 
 // Route to retrieve all approved courses
 router.get("/getApproved", async (req, res) => {
   try {
-    const courses = await Course.find({ status: "approved" });
+    const courses = await Course.find({status: "approved"});
     res.status(200).send(courses);
   } catch (error) {
-    res.status(500).send({ error: "Error fetching approved courses" });
+    res.status(500).send({error: "Error fetching approved courses"});
   }
 });
 
 // Route to retrieve all rejected courses
 router.get("/getRejected", async (req, res) => {
   try {
-    const courses = await Course.find({ status: "rejected" });
+    const courses = await Course.find({status: "rejected"});
     res.status(200).send(courses);
   } catch (error) {
-    res.status(500).send({ error: "Error fetching rejected courses" });
+    res.status(500).send({error: "Error fetching rejected courses"});
   }
 });
 
 // Route to retrieve pending courses
 router.get("/getPending", async (req, res) => {
   try {
-    const pendingCourses = await Course.find({ status: "pending" });
+    const pendingCourses = await Course.find({status: "pending"});
     res.status(200).send(pendingCourses);
   } catch (error) {
-    res.status(500).send({ error: "Error fetching pending courses" });
+    res.status(500).send({error: "Error fetching pending courses"});
   }
 });
 
