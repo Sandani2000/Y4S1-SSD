@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, {useState, useEffect} from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom"; // Import useNavigate from react-router-dom
+import {useNavigate} from "react-router-dom"; // Import useNavigate from react-router-dom
 import ConfirmationModal from "./ConfirmationModal"; // Import the ConfirmationModal component
+import DOMPurify from "dompurify"; // Import DOMPurify for sanitization
 
 function CourseList() {
   const [courses, setCourses] = useState([]);
@@ -21,15 +22,15 @@ function CourseList() {
       let response;
       if (activeTab === "approved") {
         response = await axios.get(
-          "http://localhost:4003/api/v1/course/getApproved"
+          DOMPurify.sanitize("http://localhost:4003/api/v1/course/getApproved")
         );
       } else if (activeTab === "pending") {
         response = await axios.get(
-          "http://localhost:4003/api/v1/course/getPending"
+          DOMPurify.sanitize("http://localhost:4003/api/v1/course/getPending")
         );
       } else if (activeTab === "rejected") {
         response = await axios.get(
-          "http://localhost:4003/api/v1/course/getRejected"
+          DOMPurify.sanitize("http://localhost:4003/api/v1/course/getRejected")
         );
       }
       setCourses(response.data);
@@ -55,7 +56,9 @@ function CourseList() {
   const handleDelete = async () => {
     try {
       await axios.delete(
-        `http://localhost:4003/api/v1/course/delete/${courseToDelete}`
+        DOMPurify.sanitize(
+          `http://localhost:4003/api/v1/course/delete/${courseToDelete}`
+        )
       );
       // After successful deletion, fetch the updated course list
       fetchCourses();
@@ -124,14 +127,13 @@ function CourseList() {
           >
             <div className="p-6">
               <h2 className="text-xl font-semibold mb-2">
-                {course.CourseName}
+                {DOMPurify.sanitize(course.CourseName)}
               </h2>
               {course.preview && (
                 <img
-                  src={`http://localhost:4003/${course.preview.replace(
-                    "\\",
-                    "/"
-                  )}`}
+                  src={DOMPurify.sanitize(
+                    `http://localhost:4003/${course.preview.replace("\\", "/")}`
+                  )}
                   alt="Preview"
                   className="w-full mb-2 rounded-md cursor-pointer"
                   onClick={() => handleViewDetails(course._id)}
@@ -139,10 +141,18 @@ function CourseList() {
               )}
               {expandedCourseId === course._id && (
                 <div>
-                  <p className="mb-2">Instructor: {course.instructor}</p>
-                  <p className="mb-2">Description: {course.description}</p>
-                  <p className="mb-2">Duration: {course.duration}</p>
-                  <p className="mb-2">Level: {course.level}</p>
+                  <p className="mb-2">
+                    Instructor: {DOMPurify.sanitize(course.instructor)}
+                  </p>
+                  <p className="mb-2">
+                    Description: {DOMPurify.sanitize(course.description)}
+                  </p>
+                  <p className="mb-2">
+                    Duration: {DOMPurify.sanitize(course.duration)}
+                  </p>
+                  <p className="mb-2">
+                    Level: {DOMPurify.sanitize(course.level)}
+                  </p>
                   <p className="mb-2">Price: ${course.price}</p>
                   <h3 className="text-lg font-semibold mb-2">Lessons:</h3>
                   <ul className="list-disc pl-6">
@@ -150,11 +160,11 @@ function CourseList() {
                       <li key={lessonIndex}>
                         <div className="mb-2">
                           <span className="font-semibold">Title:</span>{" "}
-                          {lesson.title}
+                          {DOMPurify.sanitize(lesson.title)}
                         </div>
                         <div className="mb-2">
                           <span className="font-semibold">Description:</span>{" "}
-                          {lesson.description}
+                          {DOMPurify.sanitize(lesson.description)}
                         </div>
                       </li>
                     ))}
@@ -163,10 +173,12 @@ function CourseList() {
                     Lecture Notes:{" "}
                     {course.lectureNotes && (
                       <a
-                        href={`http://localhost:4003/${course.lectureNotes.replace(
-                          "\\",
-                          "/"
-                        )}`}
+                        href={DOMPurify.sanitize(
+                          `http://localhost:4003/${course.lectureNotes.replace(
+                            "\\",
+                            "/"
+                          )}`
+                        )}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-blue-500 hover:underline"
@@ -179,10 +191,12 @@ function CourseList() {
                     Lecture Videos:{" "}
                     {course.lectureVideos && (
                       <a
-                        href={`http://localhost:4003/${course.lectureVideos.replace(
-                          "\\",
-                          "/"
-                        )}`}
+                        href={DOMPurify.sanitize(
+                          `http://localhost:4003/${course.lectureVideos.replace(
+                            "\\",
+                            "/"
+                          )}`
+                        )}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-blue-500 hover:underline"
