@@ -143,8 +143,26 @@ router.put("/update/:courseId", async (req, res) => {
       return res.status(404).send({error: "Course not found"});
     }
 
+    const sanitizedCourse = {
+      title: sanitize(course.InstructorId),
+      description: sanitize(course.CourseName),
+      content: sanitize(course.instructor),
+      content: sanitize(course.description),
+      content: sanitize(course.duration),
+      content: sanitize(course.level),
+      content: sanitize(course.price),
+      content: sanitize(course.lectureNotes),
+      content: sanitize(course.status),
+      content: sanitize(course.lectureVideos),
+      content: sanitize(course.preview),
+      content: sanitize(course.lessons),
+      content: sanitize(course.totalLessons),
+    };Í
+
     // If the course exists, send it as a response
-    res.status(200).send({message: "Course updated successfully", course});
+    res
+      .status(200)
+      .send({message: "Course updated successfully", sanitizedCourse});
   } catch (error) {
     res.status(500).send({error: "Error updating course"});
   }
