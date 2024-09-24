@@ -2,9 +2,9 @@
 
 ## Project Details
 
-Repo Name : Microservices Backend using ReactJS, NodeJS, MongoDB, and Docker
-Original Repo : https://github.com/SayuruRehan/ds-lms-microservices.git
-Youtube Video :
+Repo Name : Microservices Backend using ReactJS, NodeJS, MongoDB, and Docker <br />
+Original Repo : https://github.com/SayuruRehan/ds-lms-microservices.git <br />
+Youtube Video : <br />
 
 ## Group Details (Group S2-SE-WE-18)
 
