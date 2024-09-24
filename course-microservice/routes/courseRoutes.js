@@ -74,10 +74,15 @@ router.post(
       const totalLessons = lessons.length;
       courseData.totalLessons = totalLessons;
 
-      const course = new Course(courseData);
-      await course.save();
+      const sanitize = require('sanitize-html');
 
+      const sanitizedCourseData = sanitize(courseData);
+      
+      const course = new Course(sanitizedCourseData);
+      await course.save();
+      
       res.status(201).send(course);
+      
     } catch (error) {
       console.error("Error uploading data:", error);
       res.status(500).send({ error: "Error uploading data" });
