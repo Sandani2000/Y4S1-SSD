@@ -4,6 +4,7 @@ const morgan = require("morgan");
 const dotenv = require("dotenv");
 const connectDB = require("./config/db");
 const cors = require("cors");
+const helmet = require("helmet");
 
 dotenv.config();
 
@@ -12,6 +13,9 @@ connectDB();
 
 // Initialize Express app
 const app = express();
+
+// Fix1 - Use helmet to secure HTTP headers
+app.use(helmet());
 app.use(cors());
 app.use("/Lectures", express.static("Lectures"));
 app.use("/Videos", express.static("Videos"));
