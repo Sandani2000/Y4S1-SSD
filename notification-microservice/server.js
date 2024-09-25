@@ -4,25 +4,21 @@ const morgan = require("morgan");
 const dotenv = require("dotenv");
 const connectDB = require("./config/db");
 const cors = require("cors");
+const helmet = require("helmet"); 
 
 dotenv.config();
 
-// Connect to MongoDB
 connectDB();
 
-// Initialize Express app
 const app = express();
 app.use(cors());
-
-// Middlewares
+app.use(helmet());
 app.use(express.json());
 app.use(morgan("dev"));
 
-// Routes for Notification Management
 const courseRoutes = require("./routes/notificationRoutes");
 app.use("/api/v1/notification/", courseRoutes);
 
-// Listen on port
 const port = process.env.PORT || 4004;
 app.listen(port, () => {
   console.log(
