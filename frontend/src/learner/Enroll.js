@@ -1,12 +1,12 @@
-import React, {useState, useEffect} from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
-import {Link, useNavigate} from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import EnrollBackground from "../assets/enroll.jpg";
 import HeroCover from "./HeroCover";
 import NavBar from "./NavBar";
-import {GiProgression} from "react-icons/gi";
-import {IoTime} from "react-icons/io5";
-import {FaBookReader} from "react-icons/fa";
+import { GiProgression } from "react-icons/gi";
+import { IoTime } from "react-icons/io5";
+import { FaBookReader } from "react-icons/fa";
 import Modal from "./Modal";
 import DOMPurify from "dompurify"; // Import DOMPurify for sanitization
 
@@ -49,7 +49,7 @@ const Enroll = () => {
         DOMPurify.sanitize(
           `http://localhost:4002/learner/course/enroll?courseId=${course._id}`
         ),
-        {learnerId}
+        { learnerId }
       ); // Sanitize URL and input data
 
       if (response.status === 200) {
@@ -69,7 +69,7 @@ const Enroll = () => {
         DOMPurify.sanitize(
           `http://localhost:4002/learner/course/enroll?courseId=${course._id}`
         ),
-        {learnerId}
+        { learnerId }
       ); // Sanitize URL and input data
 
       if (response.status === 200) {
@@ -101,17 +101,20 @@ const Enroll = () => {
     try {
       const response = await axios.post(
         DOMPurify.sanitize(`http://localhost:4004/api/payment`),
-        {items}
+        { items }
       );
 
       if (response.status === 200) {
         const paymentUrl = DOMPurify.sanitize(response.data.url); // Sanitize the redirect URL
+        // Validate the URL before redirection
         const isValidUrl = paymentUrl.startsWith("http://localhost:4004");
         if (isValidUrl) {
           window.location.href = paymentUrl; // Proceed with safe URL
+        } else {
+          console.error("Potential malicious redirect detected.");
+          navigate("/enroll/unsuccess");
         }
       } else {
-        console.error("Potential malicious redirect detected.");
         navigate("/enroll/unsuccess");
       }
     } catch (error) {
@@ -124,7 +127,7 @@ const Enroll = () => {
     <div className="container px-4 mx-auto">
       <div
         className="relative inset-0 z-0 bg-center bg-cover"
-        style={{height: "40vh"}}
+        style={{ height: "40vh" }}
       >
         <div className="absolute inset-0 z-0 bg-green-900">
           {/* <NavBar /> */}
