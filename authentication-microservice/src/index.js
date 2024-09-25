@@ -1,11 +1,16 @@
-import {config} from "dotenv";
+import { config } from "dotenv";
 import express from "express";
-import {connectDB} from "../configs/DBConnect.js";
-import {login, register} from "./controllers/auth.controller.js";
+import helmet from "helmet"; // Import Helmet middleware
+import { connectDB } from "../configs/DBConnect.js";
+import { login, register } from "./controllers/auth.controller.js";
 
 config();
 
 export const authService = express();
+
+// Use Helmet middleware for additional security
+authService.use(helmet());
+
 authService.use(express.json());
 
 // Middleware to set headers for CORS
