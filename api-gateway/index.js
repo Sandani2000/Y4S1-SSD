@@ -4,6 +4,7 @@ import httpProxy from "http-proxy";
 import { authenticate } from "./middlewares/auth.js";
 import cookieParser from "cookie-parser";
 import cors from "cors";
+import helmet from "helmet"; // Import Helmet
 
 config();
 
@@ -11,6 +12,9 @@ const apiGateway = express();
 apiGateway.use(cookieParser());
 apiGateway.use(cors());
 const proxy = httpProxy.createProxyServer();
+
+// Use Helmet for security headers, including disabling X-Powered-By
+apiGateway.use(helmet());
 
 const colors = {
     reset: "\x1b[0m",
