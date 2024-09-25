@@ -102,11 +102,16 @@ const Enroll = () => {
       const response = await axios.post(
         DOMPurify.sanitize(`http://localhost:4004/api/payment`),
         {items}
-      ); // Sanitize the payment URL and items data
+      );
 
       if (response.status === 200) {
-        window.location.href = DOMPurify.sanitize(response.data.url); // Sanitize the redirect URL
+        const paymentUrl = DOMPurify.sanitize(response.data.url); // Sanitize the redirect URL
+        const isValidUrl = paymentUrl.startsWith("http://localhost:4004");
+        if (isValidUrl) {
+          window.location.href = paymentUrl; // Proceed with safe URL
+        }
       } else {
+        console.error("Potential malicious redirect detected.");
         navigate("/enroll/unsuccess");
       }
     } catch (error) {
