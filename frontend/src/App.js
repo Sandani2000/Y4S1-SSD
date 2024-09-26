@@ -27,6 +27,7 @@ import CourseList from "./course/CourseList";
 import AdminCourseView from "./course/AdminCourseView";
 import EditCourseForm from "./course/EditCourseForm";
 import LearnerProgress from "./learner/LearnerProgress";
+import GoogleAuthRedirectHandler from "./pages/auth/GoogleAuthRedirect";
 
 export default function App() {
   const [tokenCookie] = useCookies(["token"]);
@@ -46,6 +47,7 @@ export default function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="*" element={<PageNotFound />} />
+          <Route path="/auth/redirect" element={<GoogleAuthRedirectHandler />} />
 
           {/* Protected routes */}
           {isAuthenticated() && (

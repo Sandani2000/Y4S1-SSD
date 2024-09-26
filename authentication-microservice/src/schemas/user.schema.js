@@ -14,12 +14,12 @@ const userSchema = new Schema({
   },
   NIC: {
     type: String,
-    required: [true, 'NIC field is required.'],
+    required: [false, 'NIC field is required.'],
     unique: [true, 'NIC already exists.']
   },
   password: {
     type: String,
-    required: [true, 'Password field is required.']
+    required: [false, 'Password field is required.']
   },
   role: {
     type: String,
@@ -28,7 +28,12 @@ const userSchema = new Schema({
       message: 'Invalid role type.'
     },
     default: 'learner'
-  }
+  },
+  googleId: {
+    type: String, // Store Google OAuth unique identifier
+    required: false,
+    unique: true,
+  },
 })
 
 userSchema.pre('save', async function (next) {

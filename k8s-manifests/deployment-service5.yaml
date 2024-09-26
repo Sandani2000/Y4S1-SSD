@@ -17,6 +17,13 @@ spec:
           image: notification-microservice:latest
           ports:
             - containerPort: 4005
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "500m"
+            limits:
+              memory: "512Mi"
+              cpu: "1"
 ---
 apiVersion: v1
 kind: Service
