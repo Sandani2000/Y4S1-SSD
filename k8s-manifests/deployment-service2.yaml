@@ -17,6 +17,13 @@ spec:
           image: course-microservice:latest
           ports:
             - containerPort: 4003
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "500m"
+            limits:
+              memory: "512Mi"
+              cpu: "1"
           volumeMounts:
             - mountPath: /lectures
               name: lectures-volume
