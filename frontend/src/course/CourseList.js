@@ -40,6 +40,22 @@ function CourseList() {
     }
   };
 
+  async function fetchCsrfToken() {
+    try {
+      const response = await fetch("http://localhost:4003/api/v1/csrf-token", {
+        credentials: "include", // Ensure cookies are included in the request
+      });
+      if (!response.ok) {
+        throw new Error("Failed to fetch CSRF token");
+      }
+      const data = await response.json();
+      return data.csrfToken;
+    } catch (error) {
+      console.error("Error fetching CSRF token:", error);
+      throw error; // Make sure to propagate the error
+    }
+  }
+
   const handleViewDetails = (courseId) => {
     setExpandedCourseId(courseId === expandedCourseId ? null : courseId);
   };
@@ -55,10 +71,22 @@ function CourseList() {
 
   const handleDelete = async () => {
     try {
+      const csrfToken = await fetchCsrfToken();
+
+      const sanitizedUrl = DOMPurify.sanitize(
+        `http://localhost:4003/api/v1/course/delete/${courseToDelete}`
+      );
+
+      // Send POST request with CSRF token in headers
       await axios.delete(
-        DOMPurify.sanitize(
-          `http://localhost:4003/api/v1/course/delete/${courseToDelete}`
-        )
+        sanitizedUrl,
+        {},
+        {
+          headers: {
+            "X-CSRF-Token": csrfToken, // Include CSRF token
+          },
+          withCredentials: true, // Ensure cookies are included in the request
+        }
       );
       // After successful deletion, fetch the updated course list
       fetchCourses();

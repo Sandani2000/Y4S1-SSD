@@ -1,6 +1,8 @@
 import { config } from "dotenv";
 import express from "express";
 import helmet from "helmet"; // Import Helmet middleware
+import cookieParser from "cookie-parser"; // Required for storing CSRF token in cookies
+import csrf from "csurf"; // CSRF middleware
 import { connectDB } from "../configs/DBConnect.js";
 import { login, register } from "./controllers/auth.controller.js";
 
@@ -11,14 +13,25 @@ export const authService = express();
 // Use Helmet middleware for additional security
 authService.use(helmet());
 
-authService.use(express.json());
+// Use cookie parser
+authService.use(cookieParser());
+
+// CSRF protection middleware
+const csrfProtection = csrf({ cookie: true });
 
 // Middleware to set headers for CORS
 authService.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*"); // Allow requests from any origin
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, PATCH, DELETE"); // Allow specified methods
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type"); // Allow specified headers
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, X-CSRF-Token"); // Allow specified headers
   next();
+});
+
+authService.use(express.json());
+
+// CSRF token route for frontend to fetch and use
+authService.get("/api/v1/csrf-token", csrfProtection, (req, res) => {
+  res.json({ csrfToken: req.csrfToken() }); // Send CSRF token to the client
 });
 
 const port = process.env.AUTH_PORT;
@@ -39,5 +52,5 @@ authService.post("/test", (req, res) => {
   res.status(200).send("Response from auth server");
 });
 
-authService.post("/login", login);
-authService.post("/register", register);
+authService.post("/login", csrfProtection, login);
+authService.post("/register", csrfProtection, register);

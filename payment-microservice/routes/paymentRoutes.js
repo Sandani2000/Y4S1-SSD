@@ -8,11 +8,15 @@ const {
   deletePaymentById,
 } = require("../controllers/paymentController");
 
+const csrf = require("csurf");
+
+const csrfProtection = csrf({ cookie: true });
+
 // Routes for CRUD operations
-router.post("/", addPayment);
+router.post("/", csrfProtection, addPayment);
 router.get("/", getAllPayments);
 router.get("/:id", getPaymentById);
-router.put("/:id", updatePaymentById);
-router.delete("/:id", deletePaymentById);
+router.put("/:id", csrfProtection, updatePaymentById);
+router.delete("/:id", csrfProtection, deletePaymentById);
 
 module.exports = router;

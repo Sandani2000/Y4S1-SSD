@@ -5,6 +5,8 @@ const dotenv = require("dotenv");
 const connectDB = require("./config/db");
 const cors = require("cors");
 const helmet = require("helmet");
+const csrf = require("csurf"); // CSRF middleware
+const cookieParser = require("cookie-parser"); // Required for storing CSRF token in cookies
 
 dotenv.config();
 
@@ -16,7 +18,17 @@ const app = express();
 
 // Fix1 - Use helmet to secure HTTP headers
 app.use(helmet());
-app.use(cors());
+
+app.use(cookieParser());
+
+// Allow CORS
+const corsOptions = {
+  origin: "http://localhost:3000", // Your frontend URL
+  credentials: true, // Allow credentials (cookies)
+};
+app.use(cors(corsOptions));
+
+// Serve static files
 app.use("/Lectures", express.static("Lectures"));
 app.use("/Videos", express.static("Videos"));
 app.use("/Preview", express.static("Preview"));
@@ -24,6 +36,14 @@ app.use("/Preview", express.static("Preview"));
 // Middlewares
 app.use(express.json());
 app.use(morgan("dev"));
+
+// Fix2 - CSRF protection middleware
+const csrfProtection = csrf({ cookie: true });
+
+// Route to provide CSRF token (for frontend to fetch and use)
+app.get("/api/v1/csrf-token", csrfProtection, (req, res) => {
+  res.json({ csrfToken: req.csrfToken() });
+});
 
 // Routes for Course Management
 const courseRoutes = require("./routes/courseRoutes");

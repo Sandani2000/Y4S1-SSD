@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import DOMPurify from "dompurify"; // Import DOMPurify for sanitization
 
@@ -13,6 +13,22 @@ function AdminCourseView() {
   useEffect(() => {
     fetchCourses();
   }, []);
+
+  async function fetchCsrfToken() {
+    try {
+      const response = await fetch("http://localhost:4003/api/v1/csrf-token", {
+        credentials: "include", // Ensure cookies are included in the request
+      });
+      if (!response.ok) {
+        throw new Error("Failed to fetch CSRF token");
+      }
+      const data = await response.json();
+      return data.csrfToken;
+    } catch (error) {
+      console.error("Error fetching CSRF token:", error);
+      throw error; // Make sure to propagate the error
+    }
+  }
 
   const fetchCourses = async () => {
     try {
@@ -42,15 +58,28 @@ function AdminCourseView() {
 
   const confirmApproveCourse = async () => {
     try {
-      await axios.post(
-        DOMPurify.sanitize(
-          `http://localhost:4003/api/v1/course/approve/${courseToApprove}`
-        )
+      const csrfToken = await fetchCsrfToken();
+      // Construct the sanitized URL
+      const sanitizedUrl = DOMPurify.sanitize(
+        `http://localhost:4003/api/v1/course/approve/${courseToApprove}`
       );
+
+      // Send POST request with CSRF token in headers
+      await axios.post(
+        sanitizedUrl,
+        {},
+        {
+          headers: {
+            "X-CSRF-Token": csrfToken, // Include CSRF token
+          },
+          withCredentials: true, // Ensure cookies are included in the request
+        }
+      );
+
       setCourses((prevCourses) =>
         prevCourses.map((course) => {
           if (course._id === courseToApprove) {
-            return {...course, status: "approved"};
+            return { ...course, status: "approved" };
           }
           return course;
         })
@@ -64,16 +93,29 @@ function AdminCourseView() {
   };
 
   const confirmRejectCourse = async () => {
+    const csrfToken = await fetchCsrfToken();
     try {
-      await axios.post(
-        DOMPurify.sanitize(
-          `http://localhost:4003/api/v1/course/reject/${courseToReject}`
-        )
+      // Construct the sanitized URL
+      const sanitizedUrl = DOMPurify.sanitize(
+        `http://localhost:4003/api/v1/course/reject/${courseToReject}`
       );
+
+      // Send POST request with CSRF token in headers
+      await axios.post(
+        sanitizedUrl,
+        {},
+        {
+          headers: {
+            "X-CSRF-Token": csrfToken, // Include CSRF token
+          },
+          withCredentials: true, // Ensure cookies are included in the request
+        }
+      );
+
       setCourses((prevCourses) =>
         prevCourses.map((course) => {
           if (course._id === courseToReject) {
-            return {...course, status: "rejected"};
+            return { ...course, status: "rejected" };
           }
           return course;
         })

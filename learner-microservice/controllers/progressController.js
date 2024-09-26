@@ -1,9 +1,12 @@
 const express = require("express");
 const router = express.Router();
 const Learner = require("../models/learnerSchema");
+const csrf = require("csurf");
+
+const csrfProtection = csrf({ cookie: true });
 
 // --------------------- Update lesson completion status -------------------------------
-router.post("/lesson/complete", async (req, res) => {
+router.post("/lesson/complete", csrfProtection, async (req, res) => {
   try {
     const { learnerId, courseId, lessonId, totalLessons } = req.body;
 
@@ -45,7 +48,10 @@ router.post("/lesson/complete", async (req, res) => {
 
     res
       .status(200)
-      .json({ message: "Lesson completed successfully", progress: progress + "%"});
+      .json({
+        message: "Lesson completed successfully",
+        progress: progress + "%",
+      });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Internal server error" });
@@ -128,7 +134,7 @@ router.get("/:learnerId", async (req, res) => {
 });
 
 // ---------------------- Route to get completed lessons of a particular course for a learner ---------------------
-router.post("/completedLessons", async (req, res) => {
+router.post("/completedLessons", csrfProtection, async (req, res) => {
   try {
     const { learnerId, courseId } = req.body;
 
@@ -143,9 +149,10 @@ router.post("/completedLessons", async (req, res) => {
     );
 
     if (!enrolledCourse) {
-      return res.status(404).json({ error: "Course not found for this learner" });
+      return res
+        .status(404)
+        .json({ error: "Course not found for this learner" });
     }
-
 
     res.json(enrolledCourse.lessonsCompleted);
   } catch (error) {
@@ -153,6 +160,5 @@ router.post("/completedLessons", async (req, res) => {
     res.status(500).json({ error: "Error fetching completed lessons" });
   }
 });
-
 
 module.exports = router;

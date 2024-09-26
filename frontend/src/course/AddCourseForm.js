@@ -70,9 +70,26 @@ const AddCourseForm = () => {
     nextStep();
   };
 
+  async function fetchCsrfToken() {
+    try {
+      const response = await fetch("http://localhost:4003/api/v1/csrf-token", {
+        credentials: "include", // Ensure cookies are included in the request
+      });
+      if (!response.ok) {
+        throw new Error("Failed to fetch CSRF token");
+      }
+      const data = await response.json();
+      return data.csrfToken;
+    } catch (error) {
+      console.error("Error fetching CSRF token:", error);
+      throw error; // Make sure to propagate the error
+    }
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      const csrfToken = await fetchCsrfToken();
       const formData = new FormData();
       Object.keys(courseData).forEach((key) => {
         if (key === "lessons") {
@@ -87,7 +104,9 @@ const AddCourseForm = () => {
       await axios.post("http://localhost:4003/api/v1/course/add", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
+          'X-CSRF-Token': csrfToken, // Include CSRF token
         },
+        withCredentials: true, // Ensure cookies are included in the request
       });
 
       console.log("Course added successfully!");

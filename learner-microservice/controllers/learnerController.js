@@ -1,9 +1,12 @@
 const express = require("express");
 const router = express.Router();
 const Learner = require("../models/learnerSchema");
+const csrf = require("csurf");
+
+const csrfProtection = csrf({ cookie: true });
 
 //---------------------------- Enroll -------------------------------------
-router.post("/course/enroll", async (req, res) => {
+router.post("/course/enroll", csrfProtection, async (req, res) => {
   try {
     const { learnerId } = req.body;
     const courseId = req.query.courseId;
@@ -41,7 +44,7 @@ router.post("/course/enroll", async (req, res) => {
 });
 
 // --------------------------- Unenroll -------------------------------------
-router.post("/course/unenroll", async (req, res) => {
+router.post("/course/unenroll", csrfProtection, async (req, res) => {
   try {
     const { learnerId, courseId } = req.body;
 
@@ -94,7 +97,7 @@ router.get("/enrollments/:learnerId", async (req, res) => {
 });
 
 //  ---------------------------- create a new learner ------------------------------
-router.post("/create", async (req, res) => {
+router.post("/create", csrfProtection, async (req, res) => {
   try {
     const { learnerId } = req.body;
 
@@ -104,7 +107,7 @@ router.post("/create", async (req, res) => {
       return res.status(400).json({ error: "Learner already exists" });
     }
 
-    const newLearner = new Learner(req.body)
+    const newLearner = new Learner(req.body);
     await newLearner.save();
     res
       .status(201)
@@ -115,6 +118,5 @@ router.post("/create", async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
-
 
 module.exports = router;

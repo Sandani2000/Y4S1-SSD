@@ -10,9 +10,12 @@
   "author": "Isuru Udantha",
   "license": "ISC",
   "dependencies": {
+    "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
+    "csurf": "^1.11.0",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
+    "express-validator": "^7.2.0",
     "mongoose": "^8.3.3",
     "nodemon": "^3.1.0",
     "stripe": "^15.5.0"

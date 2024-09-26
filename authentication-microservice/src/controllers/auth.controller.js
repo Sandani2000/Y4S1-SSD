@@ -23,9 +23,12 @@ const generateToken = (res, userId, role) => {
 const clearToken = (res) => {
   res.cookie("jwt", "", {
     httpOnly: true,
+    secure: process.env.NODE_ENV !== "development",
+    sameSite: "strict",
     expires: new Date(0),
   });
 };
+
 
 async function login(req, res) {
   try {
