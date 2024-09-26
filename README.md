@@ -4,7 +4,7 @@
 
 Repo Name : Microservices Backend using ReactJS, NodeJS, MongoDB, and Docker <br />
 Original Repo : https://github.com/SayuruRehan/ds-lms-microservices.git <br />
-Youtube Video : <br />
+Youtube Video : https://youtu.be/WcvELMndCxo <br />
 
 ## Group Details (Group S2-SE-WE-18)
 
@@ -68,6 +68,3 @@ CODE MODIFICATION
 - Please update the .env in the notification-microservice directory with the following properties.
   - SENDGRID_API_KEY=Add your key here
   - SENDGRID_API_EMAIL=Add the sender's API key here
-
-
-Youtube Video Link : https://youtu.be/WcvELMndCxo
