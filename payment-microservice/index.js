@@ -4,41 +4,36 @@ const app = express();
 
 const PORT = process.env.PAYMENT_PORT || 5001;
 
-// Import MongoDB client
 const {connectToDB} = require("./config/db");
 
-// Middleware to parse JSON bodies
+// Manually disable the X-Powered-By header
+app.disable("x-powered-by");
+
 app.use(express.json());
 
-// Middleware to set headers for CORS
 app.use((req, res, next) => {
-  res.setHeader("Access-Control-Allow-Origin", "*"); // Allow requests from any origin
-  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PATCH, DELETE"); // Allow specified methods
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type"); // Allow specified headers
+  res.setHeader("Access-Control-Allow-Origin", "*"); 
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PATCH, DELETE"); 
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
   next();
 });
 
-// MongoDB connection URL
 const mongoURL = process.env.PAYMENT_MONGO_URI;
 
-// Connect to MongoDB
 connectToDB(mongoURL)
   .then((client) => {
-    // Define the route
     app.get("/", (req, res) => {
       res.send("Welcome To Payment-microservice");
     });
 
-    //payment service
     app.use("/api/payment", require("./routes/paymentRoutes"));
 
-    // Define a route to test MongoDB connection (currently there is a problem, need to be fixed)
     app.get("/test-mongodb", async (req, res) => {
       try {
-        const db = client.db(); // Access the database
-        const collection = db.collection("payments"); // Access a collection
-        const result = await collection.find({}).toArray(); // Perform a query
-        res.json(result); // Send the result as JSON
+        const db = client.db(); 
+        const collection = db.collection("payments"); 
+        const result = await collection.find({}).toArray(); 
+        res.json(result); 
       } catch (error) {
         console.error("Error querying MongoDB:", error);
         res.status(500).json({error: "Error querying MongoDB"});

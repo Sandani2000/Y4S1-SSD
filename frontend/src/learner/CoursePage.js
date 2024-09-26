@@ -1,30 +1,24 @@
-import React, { useState } from "react";
+import React, {useState} from "react";
 import axios from "axios";
-import { ToastContainer, toast } from "react-toastify";
+import {ToastContainer, toast} from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import LessonsList from "./LessonsList";
-import Progress from "./Progress";
-import Footer from "./Footer";
-import { useNavigate } from "react-router-dom";
-import arrowIcon from "../assets/arrowLeft.png";
 import Resources from "./Resources";
-import { GiProgression } from "react-icons/gi";
-import { IoTime } from "react-icons/io5";
-import { FaBookReader } from "react-icons/fa";
-import { FaLongArrowAltLeft } from "react-icons/fa";
-// import lectureVideos from "../../../course-microservice/"
+import {useNavigate} from "react-router-dom";
+import {GiProgression} from "react-icons/gi";
+import {IoTime} from "react-icons/io5";
+import {FaBookReader, FaLongArrowAltLeft} from "react-icons/fa";
+import DOMPurify from "dompurify"; // Import DOMPurify for sanitization
 
 const CoursePage = () => {
   const course = JSON.parse(localStorage.getItem("courseData"));
   const [lessons, setLessons] = useState([]);
   const navigate = useNavigate(); // Initialize navigate
 
-  console.log(course.preview);
-  const path = `../../../course-microservice/${course.preview.replace(
-    /\\/g,
-    "/"
-  )}`;
-  console.log(path);
+  // Sanitize path for course preview
+  const sanitizedPreviewUrl = DOMPurify.sanitize(
+    `http://localhost:4003/${course.preview.replace("\\", "/")}`
+  );
 
   const handleUnenroll = async () => {
     try {
@@ -32,7 +26,7 @@ const CoursePage = () => {
       const courseId = course.courseId;
 
       const response = await axios.post(
-        "http://localhost:4002/learner/course/unenroll",
+        DOMPurify.sanitize("http://localhost:4002/learner/course/unenroll"),
         {
           learnerId,
           courseId,
@@ -42,18 +36,16 @@ const CoursePage = () => {
       alert("You unenrolled successfully"); // Success alert
 
       // Make request to local notification microservice
-
       await axios.post(
-        "http://localhost:4005/api/v1/notification/add",
+        DOMPurify.sanitize("http://localhost:4005/api/v1/notification/add"),
         {
-          title: "Successfull Unenrollment",
-          message: "You are successfuly unenrolled from the course",
+          title: "Successful Unenrollment",
+          message: "You have successfully unenrolled from the course",
           role: "admin",
         },
         {
           headers: {
-            Authorization:
-              "Key here", // Replace with your SendGrid API key
+            Authorization: "Key here", // Replace with your SendGrid API key
             "Content-Type": "application/json",
           },
         }
@@ -62,13 +54,12 @@ const CoursePage = () => {
       navigate("/enrolledCourses");
       console.log(response.data.message); // Log success message
     } catch (error) {
-      // console.error("Error unenrolling:", error);
-      //alert("Error unenrolling"); // Error alert
+      console.error("Error unenrolling:", error);
     }
   };
 
-  const handleNavigation = async () => {
-    navigate(`/enrolledCourses`);
+  const handleNavigation = () => {
+    navigate("/enrolledCourses");
   };
 
   return (
@@ -76,29 +67,40 @@ const CoursePage = () => {
       <div className="flex flex-row justify-center object-cover w-full max-w-full px-20 py-20 rounded-lg shadow-md max-h-80 gap-28 bg-slate-200">
         <div className="mb-6 h-9 w-96">
           <img
-            src={`http://localhost:4003/${course.preview.replace("\\", "/")}`}
-            alt="Course Preview"
+            src={sanitizedPreviewUrl} // Use sanitized URL
+            alt={DOMPurify.sanitize(course.CourseName)} // Sanitize the alt text
           />
-          {/* <video src={course.videoUrl} className="object-cover" controls /> */}
         </div>
         <div>
           <div>
-            <h1 className="mb-4 text-5xl font-semibold">{course.CourseName}</h1>
-            <p className="mb-6 text-xl text-gray-600">{course.description}</p>
+            <h1 className="mb-4 text-5xl font-semibold">
+              {DOMPurify.sanitize(course.CourseName)}{" "}
+              {/* Sanitize the course name */}
+            </h1>
+            <p className="mb-6 text-xl text-gray-600">
+              {DOMPurify.sanitize(course.description)}{" "}
+              {/* Sanitize the course description */}
+            </p>
           </div>
 
           <div className="flex flex-row items-center justify-center px-10 pt-4 pb-2 border-2 rounded-lg bg-slate-100">
             <div className="flex flex-row justify-center flex-1 gap-2 ">
               <GiProgression />
-              <p className="">{course.level}</p>
+              <p>
+                {DOMPurify.sanitize(course.level)}{" "}
+                {/* Sanitize the course level */}
+              </p>
             </div>
             <div className="flex flex-row justify-center flex-1 gap-2">
               <FaBookReader />
-              <p>{course.lessons.length}</p>lessons
+              <p>{course.lessons.length}</p> lessons
             </div>
             <div className="flex flex-row justify-center flex-1 gap-2">
               <IoTime />
-              <p>{course.duration}</p>
+              <p>
+                {DOMPurify.sanitize(course.duration)}{" "}
+                {/* Sanitize the course duration */}
+              </p>
             </div>
           </div>
         </div>
@@ -109,13 +111,13 @@ const CoursePage = () => {
           <div className="flex flex-row">
             <button
               onClick={handleNavigation}
-              className="flex flex-row justify-around w-1/4 px-4 py-2 rounded-xl hover:bg-green-950 hover:text-slate-100 hover:boder-2 hover:boder-slate-200 border-slate-900 text-slate-100 bg-slate-800 focus:outline-none focus:shadow-outline "
+              className="flex flex-row justify-around w-1/4 px-4 py-2 rounded-xl hover:bg-green-950 hover:text-slate-100 hover:border-2 hover:border-slate-200 text-slate-100 bg-slate-800 focus:outline-none focus:shadow-outline "
             >
               <FaLongArrowAltLeft />
               Back to Enrollments
             </button>
           </div>
-          <h2 className="mt-8 mb-4 text-2xl font-semibold ">Chapters</h2>
+          <h2 className="mt-8 mb-4 text-2xl font-semibold">Chapters</h2>
           <LessonsList
             lessons={course.lessons}
             courseId={course._id}
@@ -129,7 +131,6 @@ const CoursePage = () => {
           >
             Unenroll
           </button>
-          {/* <Progress progress={course.progress} course={course} /> */}
           <Resources
             lectureNotes={course.lectureNotes}
             lectureVideos={course.lectureVideos}

@@ -1,4 +1,5 @@
 import { config } from "dotenv";
+import { config } from "dotenv";
 import express from "express";
 import passport from "passport";
 import session from "express-session";
@@ -8,6 +9,9 @@ import { login, register, googleAuthCallback } from "./controllers/auth.controll
 config();
 
 export const authService = express();
+
+authService.use(helmet());
+
 authService.use(express.json());
 
 // Session setup for Passport.js
@@ -33,7 +37,6 @@ authService.use((req, res, next) => {
 
 const port = process.env.AUTH_PORT;
 
-// Start the server after connecting to the database
 connectDB()
   .then(() => {
     authService.listen(port, () => {

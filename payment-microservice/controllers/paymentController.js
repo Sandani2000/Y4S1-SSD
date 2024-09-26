@@ -1,13 +1,33 @@
 const Payment = require("../models/paymentModel");
 const stripe = require("stripe")(process.env.STRIPE_SECRET);
+const {body, validationResult} = require("express-validator");
 
-// Add Payment
+// Add Payment with validation
 const addPayment = async (req, res) => {
   const {items} = req.body;
   const currency = "lkr";
 
+  // Validate the incoming items object
+  if (!items || !Array.isArray(items.products)) {
+    return res
+      .status(400)
+      .json({error: "Invalid input: products must be an array."});
+  }
+
+  // Ensure that each product has the necessary properties
+  for (let product of items.products) {
+    if (
+      typeof product.name !== "string" ||
+      typeof product.price !== "number" ||
+      !Array.isArray(product.images) ||
+      typeof product.quantity !== "number"
+    ) {
+      return res.status(400).json({error: "Invalid product data format."});
+    }
+  }
+
   try {
-    // Create a new Checkout Session
+    // Create a new Checkout Session with validated data
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       mode: "payment",
@@ -28,16 +48,16 @@ const addPayment = async (req, res) => {
 
     res.json({url: session.url});
   } catch (error) {
-    console.error("Error creating checkout payment :", error);
+    console.error("Error creating checkout payment:", error);
     res
       .status(500)
-      .json({error: "An error occurred while creating checkout session"});
+      .json({error: "An error occurred while creating checkout session."});
   }
 };
 
-// Get all Faculties
+// Get all Payments
 const getAllPayments = async (req, res) => {
-  console.log("gget all payment");
+  console.log("get all payments");
 };
 
 // Get Payment by ID
@@ -47,7 +67,7 @@ const getPaymentById = async (req, res) => {
 
 // Update Payment by ID
 const updatePaymentById = async (req, res) => {
-  console.log("update pyment by id");
+  console.log("update payment by id");
 };
 
 // Delete Payment by ID

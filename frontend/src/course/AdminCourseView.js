@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, {useState, useEffect} from "react";
 import axios from "axios";
+import DOMPurify from "dompurify"; // Import DOMPurify for sanitization
 
 function AdminCourseView() {
   const [courses, setCourses] = useState([]);
@@ -16,7 +17,7 @@ function AdminCourseView() {
   const fetchCourses = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:4003/api/v1/course/get"
+        DOMPurify.sanitize("http://localhost:4003/api/v1/course/get")
       );
       setCourses(response.data);
     } catch (error) {
@@ -42,12 +43,14 @@ function AdminCourseView() {
   const confirmApproveCourse = async () => {
     try {
       await axios.post(
-        `http://localhost:4003/api/v1/course/approve/${courseToApprove}`
+        DOMPurify.sanitize(
+          `http://localhost:4003/api/v1/course/approve/${courseToApprove}`
+        )
       );
       setCourses((prevCourses) =>
         prevCourses.map((course) => {
           if (course._id === courseToApprove) {
-            return { ...course, status: "approved" };
+            return {...course, status: "approved"};
           }
           return course;
         })
@@ -63,12 +66,14 @@ function AdminCourseView() {
   const confirmRejectCourse = async () => {
     try {
       await axios.post(
-        `http://localhost:4003/api/v1/course/reject/${courseToReject}`
+        DOMPurify.sanitize(
+          `http://localhost:4003/api/v1/course/reject/${courseToReject}`
+        )
       );
       setCourses((prevCourses) =>
         prevCourses.map((course) => {
           if (course._id === courseToReject) {
-            return { ...course, status: "rejected" };
+            return {...course, status: "rejected"};
           }
           return course;
         })
@@ -95,14 +100,13 @@ function AdminCourseView() {
           >
             <div className="p-6">
               <h2 className="text-xl font-semibold mb-2">
-                {course.CourseName}
+                {DOMPurify.sanitize(course.CourseName)}
               </h2>
               {course.preview && (
                 <img
-                  src={`http://localhost:4003/${course.preview.replace(
-                    "\\",
-                    "/"
-                  )}`}
+                  src={DOMPurify.sanitize(
+                    `http://localhost:4003/${course.preview.replace("\\", "/")}`
+                  )}
                   alt="Preview"
                   className="w-full mb-2 rounded-md cursor-pointer"
                   onClick={() => handleViewDetails(course._id)}
@@ -111,15 +115,16 @@ function AdminCourseView() {
               {expandedCourseId === course._id && (
                 <div>
                   <h3 className="text-lg font-semibold mb-2">Course Details</h3>
-                  <p>Description: {course.description}</p>
-                  <p>Duration: {course.duration}</p>
-                  <p>Level: {course.level}</p>
+                  <p>Description: {DOMPurify.sanitize(course.description)}</p>
+                  <p>Duration: {DOMPurify.sanitize(course.duration)}</p>
+                  <p>Level: {DOMPurify.sanitize(course.level)}</p>
                   <p>Price: ${course.price}</p>
                   <p>Total Lessons: {course.totalLessons}</p>
                   <ul>
                     {course.lessons.map((lesson, index) => (
                       <li key={index}>
-                        <strong>{lesson.title}</strong>: {lesson.description}
+                        <strong>{DOMPurify.sanitize(lesson.title)}</strong>:{" "}
+                        {DOMPurify.sanitize(lesson.description)}
                       </li>
                     ))}
                   </ul>
