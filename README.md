@@ -68,3 +68,6 @@ CODE MODIFICATION
 - Please update the .env in the notification-microservice directory with the following properties.
   - SENDGRID_API_KEY=Add your key here
   - SENDGRID_API_EMAIL=Add the sender's API key here
+
+
+Youtube Video Link : https://youtu.be/WcvELMndCxo
