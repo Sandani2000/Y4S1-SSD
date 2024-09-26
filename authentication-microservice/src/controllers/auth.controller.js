@@ -1,6 +1,8 @@
 import jwt from "jsonwebtoken";
 import User from "../schemas/user.schema.js";
 import { config } from "dotenv";
+import passport from "passport";
+import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 
 config();
 
@@ -58,4 +60,59 @@ async function register(req, res) {
   }
 }
 
-export { login, register };
+// Passport Google OAuth strategy
+passport.use(
+  new GoogleStrategy(
+    {
+      clientID: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      callbackURL: process.env.GOOGLE_CALLBACK_URL,
+    },
+    async (accessToken, refreshToken, profile, done) => {
+      try {
+        let user = await User.findOne({ googleId: profile.id });
+        if (!user) {
+          user = new User({
+            googleId: profile.id,
+            name: profile.displayName,
+            email: profile.emails[0].value,
+            role: "learner",
+          });
+          await user.save();
+        }
+        done(null, user);
+      } catch (error) {
+        done(error, false);
+      }
+    }
+  )
+);
+
+passport.serializeUser((user, done) => {
+  done(null, user.id);
+});
+
+passport.deserializeUser(async (id, done) => {
+  const user = await User.findById(id);
+  done(null, user);
+});
+
+// Google OAuth callback
+const googleAuthCallback = async (req, res) => {
+  try {
+    // Check if the user exists in the request object from Passport
+    if (!req.user) {
+      return res.status(401).json({ message: "Authentication failed" });
+    }
+
+    // Generate JWT token
+    const token = generateToken(res, req.user._id, req.user.role);
+
+    res.redirect(`http://localhost:3000/auth/redirect?token=${token}&role=${req.user.role}&userId=${req.user._id}`);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export { login, register, googleAuthCallback };
