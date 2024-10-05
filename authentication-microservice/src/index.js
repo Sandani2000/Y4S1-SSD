@@ -21,9 +21,11 @@ const csrfProtection = csrf({ cookie: true });
 
 // Middleware to set headers for CORS
 authService.use((req, res, next) => {
-  res.setHeader("Access-Control-Allow-Origin", "*"); // Allow requests from any origin
+  res.setHeader("Access-Control-Allow-Origin", "http://localhost:3000"); // Allow requests from any origin
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, PATCH, DELETE"); // Allow specified methods
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, X-CSRF-Token"); // Allow specified headers
+  res.setHeader("Access-Control-Allow-Credentials", "true"); 
+  
   next();
 });
 

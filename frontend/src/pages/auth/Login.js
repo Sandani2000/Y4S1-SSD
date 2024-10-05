@@ -10,9 +10,26 @@ export default function Login() {
   const [roleCookie, setRoleCookie] = useCookies("role");
   const [userIdCookie, setUserIdCookie] = useCookies("userId");
 
+  async function fetchCsrfToken() {
+    try {
+      const response = await fetch("http://localhost:4001/api/v1/csrf-token", {
+        credentials: "include", // Ensure cookies are included in the request
+      });
+      if (!response.ok) {
+        throw new Error("Failed to fetch CSRF token");
+      }
+      const data = await response.json();
+      return data.csrfToken;
+    } catch (error) {
+      console.error("Error fetching CSRF token:", error);
+      throw error; // Make sure to propagate the error
+    }
+  }
+
   // API - loginHandler
   const loginHandler = async (event) => {
     event.preventDefault();
+    const csrfToken = await fetchCsrfToken();
 
     const form = event.target;
     const formData = new FormData(form);
@@ -22,11 +39,13 @@ export default function Login() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          'X-CSRF-Token': csrfToken, // Include CSRF token
         },
         body: JSON.stringify({
           email: formData.get("email"),
           password: formData.get("password"),
         }),
+        credentials: "include", // Ensure cookies are included in the request
       });
 
       const responseData = await response.json();

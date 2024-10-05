@@ -28,6 +28,12 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 
+app.use((req, res, next) => {
+  res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+  next();
+});
+
+
 // Serve static files
 app.use("/Lectures", express.static("Lectures"));
 app.use("/Videos", express.static("Videos"));

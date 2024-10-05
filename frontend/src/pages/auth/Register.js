@@ -6,10 +6,26 @@ export default function Login() {
   const [popupMessage, setPopupMessage] = useState("");
   const [showPopup, setShowPopup] = useState(false);
 
+  async function fetchCsrfToken() {
+    try {
+      const response = await fetch("http://localhost:4001/api/v1/csrf-token", {
+        credentials: "include", // Ensure cookies are included in the request
+      });
+      if (!response.ok) {
+        throw new Error("Failed to fetch CSRF token");
+      }
+      const data = await response.json();
+      return data.csrfToken;
+    } catch (error) {
+      console.error("Error fetching CSRF token:", error);
+      throw error; // Make sure to propagate the error
+    }
+  }
+
   // API - signUpHandler
   const signUpHandler = async (event) => {
     event.preventDefault();
-
+    const csrfToken = await fetchCsrfToken();
     const form = event.target;
     const formData = new FormData(form);
 
@@ -18,6 +34,7 @@ export default function Login() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          'X-CSRF-Token': csrfToken, // Include CSRF token
         },
         body: JSON.stringify({
           name: formData.get("name"),
@@ -26,6 +43,7 @@ export default function Login() {
           password: formData.get("password"),
           role: formData.get("role"),
         }),
+        credentials: "include", // Ensure cookies are included in the request
       });
 
       const responseData = await response.json();

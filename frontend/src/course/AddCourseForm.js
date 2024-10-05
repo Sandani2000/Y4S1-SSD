@@ -128,6 +128,8 @@ const AddCourseForm = () => {
       setStep(1);
 
       alert("Course added successfully!");
+       // redirect the user home page
+       window.location.href = "/list";
     } catch (error) {
       console.error("Error adding course:", error);
       alert("An error occurred while adding the course. Please try again.");

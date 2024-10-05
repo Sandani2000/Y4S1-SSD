@@ -38,65 +38,72 @@ export default function App() {
 
   return (
     <Router>
-      <div className="">
+      <div className="flex flex-col min-h-screen">
         <Header />
-        <Routes>
-          {/* Public routes */}
-          <Route path="/" element={<Home />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="*" element={<PageNotFound />} />
 
-          {/* Protected routes */}
-          {isAuthenticated() && (
-            <>
-              <Route path="/profile" element={<Profile />} />
-              <Route path="/dashboard" element={<Dashboard />} />
-              {roleCookie.role === "instructor" ||
-              roleCookie.role === "admin" ? (
-                <>
-                  <Route path="/addCourse" element={<AddCourseForm />} />
-                  <Route path="/list" element={<CourseList />} />
-                  <Route path="/edit/:courseId" element={<EditCourseForm />} />
-                  <Route path="/all" element={<Enroll />} />
-                  <Route path="/courses/:courseID" element={<CoursePage />} />
-                  <Route
-                    path="/enrolledCourses"
-                    element={<EnrolledCourses />}
-                  />
-                  <Route path="/enroll/success" element={<Success />} />
-                  <Route path="/enroll/unsuccess" element={<Unsuccess />} />
-                </>
-              ) : null}
-              {roleCookie.role === "admin" ? (
-                <>
-                  <Route path="/adminList" element={<AdminCourseView />} />
-                  <Route path="/all" element={<Enroll />} />
-                  <Route path="/courses/:courseID" element={<CoursePage />} />
-                  <Route
-                    path="/enrolledCourses"
-                    element={<EnrolledCourses />}
-                  />
-                  <Route path="/enroll/success" element={<Success />} />
-                  <Route path="/enroll/unsuccess" element={<Unsuccess />} />
-                </>
-              ) : null}
-              {roleCookie.role === "learner" ? (
-                <>
-                  <Route path="/all" element={<Enroll />} />
-                  <Route path="/courses/:courseID" element={<CoursePage />} />
-                  <Route
-                    path="/enrolledCourses"
-                    element={<EnrolledCourses />}
-                  />
-                  <Route path="/enroll/success" element={<Success />} />
-                  <Route path="/enroll/unsuccess" element={<Unsuccess />} />
-                  <Route path="/myProgress" element={<LearnerProgress />} />
-                </>
-              ) : null}
-            </>
-          )}
-        </Routes>
+        <div className="flex-grow">
+          <Routes>
+            {/* Public routes */}
+            <Route path="/" element={<Home />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="*" element={<PageNotFound />} />
+
+            {/* Protected routes */}
+            {isAuthenticated() && (
+              <>
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/dashboard" element={<Dashboard />} />
+                {roleCookie.role === "instructor" ||
+                roleCookie.role === "admin" ? (
+                  <>
+                    <Route path="/addCourse" element={<AddCourseForm />} />
+                    <Route path="/list" element={<CourseList />} />
+                    <Route
+                      path="/edit/:courseId"
+                      element={<EditCourseForm />}
+                    />
+                    <Route path="/all" element={<Enroll />} />
+                    <Route path="/courses/:courseID" element={<CoursePage />} />
+                    <Route
+                      path="/enrolledCourses"
+                      element={<EnrolledCourses />}
+                    />
+                    <Route path="/enroll/success" element={<Success />} />
+                    <Route path="/enroll/unsuccess" element={<Unsuccess />} />
+                  </>
+                ) : null}
+                {roleCookie.role === "admin" ? (
+                  <>
+                    <Route path="/adminList" element={<AdminCourseView />} />
+                    <Route path="/all" element={<Enroll />} />
+                    <Route path="/courses/:courseID" element={<CoursePage />} />
+                    <Route
+                      path="/enrolledCourses"
+                      element={<EnrolledCourses />}
+                    />
+                    <Route path="/enroll/success" element={<Success />} />
+                    <Route path="/enroll/unsuccess" element={<Unsuccess />} />
+                  </>
+                ) : null}
+                {roleCookie.role === "learner" ? (
+                  <>
+                    <Route path="/all" element={<Enroll />} />
+                    <Route path="/courses/:courseID" element={<CoursePage />} />
+                    <Route
+                      path="/enrolledCourses"
+                      element={<EnrolledCourses />}
+                    />
+                    <Route path="/enroll/success" element={<Success />} />
+                    <Route path="/enroll/unsuccess" element={<Unsuccess />} />
+                    <Route path="/myProgress" element={<LearnerProgress />} />
+                  </>
+                ) : null}
+              </>
+            )}
+          </Routes>
+        </div>
+        
         <Footer />
       </div>
     </Router>
