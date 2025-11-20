@@ -27,7 +27,7 @@
     "slick-carousel": "^1.8.1",
     "tailwindcss": "^3.4.3",
     "web-vitals": "^2.1.4",
-    "workbox-webpack-plugin": "^7.1.0"
+    "workbox-webpack-plugin": "^7.4.0"
   },
   "scripts": {
     "start": "react-scripts start",
